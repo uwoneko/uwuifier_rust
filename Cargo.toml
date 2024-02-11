@@ -10,7 +10,11 @@ rand = "0.8.5"
 xxhash-rust = { version = "*", features = ["xxh3", "const_xxh3"] }
 
 [profile.release]
+panic = 'abort'
 opt-level = 3
 lto = true
-strip = true 
+strip = true
+debug-assertions = false
+overflow-checks = false
 incremental = true
+codegen-units = 1

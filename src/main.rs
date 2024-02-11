@@ -1,3 +1,4 @@
+use std::{env, fs};
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
 use xxhash_rust::xxh3::xxh3_64;
@@ -76,7 +77,7 @@ fn uwuify(input: &str) -> String {
             }
         }
 
-        if input.match_single(i, "aww") && (i + 3 >= input_length || input_bytes[i + 3] == b'w' || input_bytes[i + 3] == b' ') {
+        if input.match_single(i, "aww") && (i + 3 >= input_length || input_bytes[i + 3] == b'w' || input_bytes[i + 3] == b' ' || input_bytes[i + 3] == b'\n') {
             result.push_str("uwu");
             i += 3;
             continue;
@@ -102,7 +103,7 @@ fn uwuify(input: &str) -> String {
                     break true;
                 }
                 if input_bytes[j] != b'.' {
-                    if input_bytes[j] == b' ' {
+                    if input_bytes[j] != b' ' && input_bytes[j] != b'\n' {
                         break false;
                     }
                     break true;
@@ -120,7 +121,7 @@ fn uwuify(input: &str) -> String {
             }
         }
 
-        if input_bytes[i] == b',' && (i + 1 >= input_length || input_bytes[i + 1] == b' ') {
+        if input_bytes[i] == b',' && (i + 1 >= input_length || input_bytes[i + 1] == b' ' || input_bytes[i + 1] == b'\n') {
             let s = PHRASES[rng.gen_range(0..PHRASES.len())];
             result.push(' ');
             result.push_str(s);
@@ -129,19 +130,19 @@ fn uwuify(input: &str) -> String {
             continue;
         }
 
-        if input_bytes[i] == b'!' && (i + 1 >= input_length || input_bytes[i + 1] == b' ' || input_bytes[i + 1] == b'!') {
+        if input_bytes[i] == b'!' && (i + 1 >= input_length || input_bytes[i + 1] == b' ' || input_bytes[i + 1] == b'\n' || input_bytes[i + 1] == b'!') {
             result.push_str("!!");
             i += 1;
             continue;
         }
 
-        if input_bytes[i] == b'?' && (i + 1 >= input_length || input_bytes[i + 1] == b' ' || input_bytes[i + 1] == b'?') {
+        if input_bytes[i] == b'?' && (i + 1 >= input_length || input_bytes[i + 1] == b' ' || input_bytes[i + 1] == b'\n' || input_bytes[i + 1] == b'?') {
             result.push_str(if rng.gen_bool(0.5) { "?!" } else { "!?" });
             i += 1;
             continue;
         }
 
-        if input.match_single(i, "wo") && (i == 0 || input_bytes[i - 0] == b'o') && (i + 1 >= input_length || input_bytes[i + 1] == b'w') {
+        if input.match_single(i, "wo") && (i == 0 || input_bytes[i - 0] != b'o') && (i + 1 >= input_length || input_bytes[i + 1] != b'w') {
             result.push_str("owo");
             i += 2;
             continue;
@@ -158,7 +159,18 @@ fn uwuify(input: &str) -> String {
 }
 
 fn main() {
-    println!("{}", uwuify("In the enchanted forest, a sentient cat named Mia explored the glistening glades with curiosity in her big, innocent eyes. She playfully chased after sunbeams that danced through the canopy, and her soft, silk-like fur ruffled gently in the breeze. Mia's sweet and gentle nature were captivating, endearing her to all who encountered her."));
+    let args: Vec<String> = env::args().collect();
+
+    if args.len() < 3 {
+        println!("usage: uwuifier_rust input.txt output.txt");
+        return;
+    }
+
+    let content = fs::read_to_string(&args[1]).expect("could not read file");
+
+    let uwuified_content = uwuify(&content);
+
+    fs::write(&args[2], uwuified_content).expect("could not write to file");
 }
 
 pub trait Match {
@@ -167,6 +179,7 @@ pub trait Match {
     fn match_any(&self, index: usize, needles: &[&str]) -> bool;
 }
 impl Match for &str {
+    #[inline(always)]
     fn match_single(&self, index: usize, needle: &str) -> bool {
         if index + needle.len() > self.len() {
             return false;
@@ -175,6 +188,7 @@ impl Match for &str {
         self[index..].starts_with(needle)
     }
 
+    #[inline(always)]
     fn match_any(&self, index: usize, needles: &[&str]) -> bool {
         for &needle in needles {
             if index + needle.len() > self.len() { continue; }
