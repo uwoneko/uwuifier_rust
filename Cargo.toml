@@ -3,7 +3,6 @@ name = "uwuifier_rust"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 rand = "0.8.5"
 xxhash-rust = { version = "*", features = ["xxh3"] }
@@ -11,15 +10,9 @@ xxhash-rust = { version = "*", features = ["xxh3"] }
 [dev-dependencies]
 criterion = "0.5.1"
 
-[[bench]]
-name = "benchy"
-harness = false
-
+# keep your code optimized 😊❤️
 [profile.release]
 opt-level = 3
 lto = true
 strip = true
-debug-assertions = false
-overflow-checks = false
 incremental = true
-codegen-units = 1
