@@ -1,5 +1,5 @@
 use std::{env, fs};
-use uwuifier_rust::uwuify;
+use uwuifier::uwuify;
 
 fn main() {
     let args: Vec<String> = env::args().collect();

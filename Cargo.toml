@@ -1,5 +1,5 @@
 [package]
-name = "uwuifier_rust"
+name = "uwuifier"
 version = "0.1.0"
 edition = "2021"
 
@@ -13,6 +13,11 @@ criterion = "0.5.1"
 # keep your code optimized 😊❤️
 [profile.release]
 opt-level = 3
+debug = false
+debug-assertions = false
+overflow-checks = false
+panic = "abort"
 lto = true
 strip = true
 incremental = true
+codegen-units = 1
