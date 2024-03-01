@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rand = "0.8.5"
-xxhash-rust = { version = "*", features = ["xxh3"] }
+tinyrand = "0.5.0" # tiny rand is very fast
+xxhash-rust = { version = "*", features = ["xxh3"] } # and dis thingy too
 
 [dev-dependencies]
 criterion = "0.5.1"

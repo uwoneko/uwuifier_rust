@@ -1,5 +1,5 @@
-use rand::rngs::StdRng;
-use rand::{Rng, SeedableRng};
+#![feature(portable_simd)]
+use tinyrand::{Probability, Rand, RandLim, Seeded, StdRand};
 use xxhash_rust::xxh3::xxh3_64;
 
 const EMOJIS: [&str; 17] = [
@@ -51,12 +51,12 @@ pub fn uwuify(input: &str) -> String {
     let input_ptr = input.as_ptr();
 
     let seed = xxh3_64(input.as_bytes()); // uh this is so fast??? how???
-    let mut rng = StdRng::seed_from_u64(seed);
+    let mut rng = StdRand::seed(seed);
 
     let input_length = input.len();
     let mut result = String::with_capacity(input_length); // allocating 2x seems to make it slower
 
-    result.push_str(EMOJIS[rng.gen_range(0..EMOJIS.len())]);
+    result.push_str(EMOJIS[rng.next_lim(EMOJIS.len())]);
     result.push(' ');
 
     let mut i = 0;
@@ -125,7 +125,7 @@ pub fn uwuify(input: &str) -> String {
                 };
 
                 if meets_condition {
-                    let s = if rng.gen_bool(0.5) { EMOJIS[rng.gen_range(0..EMOJIS.len())] } else { PHRASES[rng.gen_range(0..PHRASES.len())] };
+                    let s = if rng.next_bool(Probability::new(0.5)) { EMOJIS[rng.next_lim(EMOJIS.len())] } else { PHRASES[rng.next_lim(PHRASES.len())] };
                     result.push(' ');
                     result.push_str(s);
                     result.push('.');
@@ -139,7 +139,7 @@ pub fn uwuify(input: &str) -> String {
 
             // colon followed by a space, \n, or end of string
             if current == b',' && (i + 1 >= input_length || *current_ptr.offset(1) == b' ' || *current_ptr.offset(1) == b'\n') {
-                let s = PHRASES[rng.gen_range(0..PHRASES.len())];
+                let s = PHRASES[rng.next_lim(PHRASES.len())];
                 result.push(' ');
                 result.push_str(s);
                 result.push(',');
@@ -156,7 +156,7 @@ pub fn uwuify(input: &str) -> String {
 
             // a question mark that is is followed by a space, \n, end of string, or another question mark
             if current == b'?' && (i + 1 >= input_length || *current_ptr.offset(1) == b' ' || *current_ptr.offset(1) == b'\n' || *current_ptr.offset(1) == b'?') {
-                result.push_str(if rng.gen_bool(0.5) { "?!" } else { "!?" });
+                result.push_str(if rng.next_bool(Probability::new(0.5)) { "?!" } else { "!?" });
                 i += 1;
                 continue;
             }
@@ -174,7 +174,7 @@ pub fn uwuify(input: &str) -> String {
     }
 
     result.push(' ');
-    result.push_str(PHRASES[rng.gen_range(0..PHRASES.len())]);
+    result.push_str(PHRASES[rng.next_lim(PHRASES.len())]);
 
     result
 }
